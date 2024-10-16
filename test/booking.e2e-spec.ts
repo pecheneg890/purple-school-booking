@@ -132,6 +132,13 @@ describe('BookingController (e2e)', () => {
 			.expect(404);
 	});
 
+	it('/booking (POST) - создание бронирования с неверными параметрами', async () => {
+		return await request(app.getHttpServer())
+			.post('/booking/')
+			.send({ ...booking, person: 444 })
+			.expect(400);
+	});
+
 	afterAll(async () => {
 		disconnect();
 	});

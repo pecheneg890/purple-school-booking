@@ -73,7 +73,7 @@ describe('RoomController (e2e)', () => {
 			});
 	});
 
-	it('/room/ (GET) - проверяем что список комнат увеличился на 1', async () => {
+	it('/room/ (GET) - проверяем, что список комнат увеличился на 1', async () => {
 		return await request(app.getHttpServer())
 			.get('/room')
 			.expect(200)
@@ -105,6 +105,13 @@ describe('RoomController (e2e)', () => {
 		return await request(app.getHttpServer())
 			.get('/room/' + new Types.ObjectId().toHexString())
 			.expect(404);
+	});
+
+	it('/room (POST) - создание комнаты с неверными параметрами', async () => {
+		return await request(app.getHttpServer())
+			.post('/room/')
+			.send({ ...room, type: 99 })
+			.expect(400);
 	});
 
 	afterAll(async () => {
