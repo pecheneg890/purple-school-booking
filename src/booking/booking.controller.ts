@@ -49,13 +49,9 @@ export class BookingController {
 
 	@Patch(':id')
 	async update(@Param('id') id: string, @Body() dto: BookingUpdateDto) {
-		try {
-			const room = await this.bookingService.update(id, dto);
-			if (!room) throw new HttpException(BOOKING_NOT_FOUND, HttpStatus.NOT_FOUND);
-			return room;
-		} catch (error) {
-			throw new HttpException(error.message, HttpStatus.CONFLICT);
-		}
+		const room = await this.bookingService.update(id, dto);
+		if (!room) throw new HttpException(BOOKING_NOT_FOUND, HttpStatus.NOT_FOUND);
+		return room;
 	}
 
 	@Get('byRoom/:id')
