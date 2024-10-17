@@ -8,6 +8,8 @@ import {
 	Patch,
 	HttpException,
 	HttpStatus,
+	ValidationPipe,
+	UsePipes,
 } from '@nestjs/common';
 import { RoomCreateDto } from './dto/room-create.dto';
 import { RoomService } from './room.service';
@@ -26,6 +28,7 @@ export class RoomController {
 	}
 
 	@Post()
+	@UsePipes(new ValidationPipe())
 	async create(@Body() dto: RoomCreateDto) {
 		return await this.roomService.create(dto);
 	}
@@ -43,6 +46,7 @@ export class RoomController {
 	}
 
 	@Patch(':id')
+	@UsePipes(new ValidationPipe())
 	async update(@Param('id') id: string, @Body() dto: RoomUpdateDto) {
 		const room = await this.roomService.update(id, dto);
 		if (!room) throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);

@@ -9,6 +9,8 @@ import {
 	HttpException,
 	HttpStatus,
 	Query,
+	UsePipes,
+	ValidationPipe,
 } from '@nestjs/common';
 import { BOOKING_NOT_FOUND } from './booking.constants';
 import { BookingCreateDto } from './dto/booking-create.dto';
@@ -27,6 +29,7 @@ export class BookingController {
 	}
 
 	@Post()
+	@UsePipes(new ValidationPipe())
 	async create(@Body() dto: BookingCreateDto) {
 		try {
 			return await this.bookingService.create(dto);
@@ -48,14 +51,11 @@ export class BookingController {
 	}
 
 	@Patch(':id')
+	@UsePipes(new ValidationPipe())
 	async update(@Param('id') id: string, @Body() dto: BookingUpdateDto) {
-		try {
-			const room = await this.bookingService.update(id, dto);
-			if (!room) throw new HttpException(BOOKING_NOT_FOUND, HttpStatus.NOT_FOUND);
-			return room;
-		} catch (error) {
-			throw new HttpException(error.message, HttpStatus.CONFLICT);
-		}
+		const room = await this.bookingService.update(id, dto);
+		if (!room) throw new HttpException(BOOKING_NOT_FOUND, HttpStatus.NOT_FOUND);
+		return room;
 	}
 
 	@Get('byRoom/:id')
