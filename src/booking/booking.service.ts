@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { Booking, BookingDocument } from './schemas/booking.schema';
 import { Model, RootFilterQuery } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -13,7 +13,7 @@ export class BookingService {
 	async create(dto: BookingCreateDto): Promise<BookingDocument> {
 		//проверка что комната уже забронирована на эту дату
 		const alwaysBooked = await this.bookingModel.findOne({ room: dto.room, date: dto.date });
-		if (alwaysBooked) throw new Error(ALREADY_BOOKED);
+		if (alwaysBooked) throw new ConflictException(ALREADY_BOOKED);
 
 		return this.bookingModel.create(dto);
 	}
@@ -34,7 +34,7 @@ export class BookingService {
 	async update(id: string, dto: BookingUpdateDto): Promise<BookingDocument | null> {
 		//проверка что комната уже забронирована на эту дату
 		const alwaysBooked = await this.bookingModel.findOne({ room: dto.room, date: dto.date });
-		if (alwaysBooked) throw new HttpException(ALREADY_BOOKED, HttpStatus.CONFLICT);
+		if (alwaysBooked) throw new ConflictException(ALREADY_BOOKED);
 
 		return this.bookingModel.findByIdAndUpdate(id, dto, { new: true }).exec();
 	}

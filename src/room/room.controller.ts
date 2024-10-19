@@ -6,10 +6,9 @@ import {
 	Body,
 	Delete,
 	Patch,
-	HttpException,
-	HttpStatus,
 	ValidationPipe,
 	UsePipes,
+	NotFoundException,
 } from '@nestjs/common';
 import { RoomCreateDto } from './dto/room-create.dto';
 import { RoomService } from './room.service';
@@ -23,7 +22,7 @@ export class RoomController {
 	@Get(':id')
 	async get(@Param('id') id: string) {
 		const room = await this.roomService.get(id);
-		if (!room) throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
+		if (!room) throw new NotFoundException(ROOM_NOT_FOUND);
 		return room;
 	}
 
@@ -41,7 +40,7 @@ export class RoomController {
 	@Delete(':id')
 	async delete(@Param('id') id: string) {
 		const deletedRoom = await this.roomService.delete(id);
-		if (!deletedRoom) throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
+		if (!deletedRoom) throw new NotFoundException(ROOM_NOT_FOUND);
 		return deletedRoom;
 	}
 
@@ -49,7 +48,7 @@ export class RoomController {
 	@UsePipes(new ValidationPipe())
 	async update(@Param('id') id: string, @Body() dto: RoomUpdateDto) {
 		const room = await this.roomService.update(id, dto);
-		if (!room) throw new HttpException(ROOM_NOT_FOUND, HttpStatus.NOT_FOUND);
+		if (!room) throw new NotFoundException(ROOM_NOT_FOUND);
 		return room;
 	}
 }

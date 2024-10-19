@@ -6,11 +6,10 @@ import {
 	Patch,
 	Body,
 	Param,
-	HttpException,
-	HttpStatus,
 	Query,
 	UsePipes,
 	ValidationPipe,
+	NotFoundException,
 } from '@nestjs/common';
 import { BOOKING_NOT_FOUND } from './booking.constants';
 import { BookingCreateDto } from './dto/booking-create.dto';
@@ -24,18 +23,14 @@ export class BookingController {
 	@Get(':id')
 	async get(@Param('id') id: string) {
 		const room = await this.bookingService.get(id);
-		if (!room) throw new HttpException(BOOKING_NOT_FOUND, HttpStatus.NOT_FOUND);
+		if (!room) throw new NotFoundException(BOOKING_NOT_FOUND);
 		return room;
 	}
 
 	@Post()
 	@UsePipes(new ValidationPipe())
 	async create(@Body() dto: BookingCreateDto) {
-		try {
-			return await this.bookingService.create(dto);
-		} catch (error) {
-			throw new HttpException(error.message, HttpStatus.CONFLICT);
-		}
+		return await this.bookingService.create(dto);
 	}
 
 	@Get()
@@ -46,7 +41,7 @@ export class BookingController {
 	@Delete(':id')
 	async delete(@Param('id') id: string) {
 		const deletedBooking = await this.bookingService.delete(id);
-		if (!deletedBooking) throw new HttpException(BOOKING_NOT_FOUND, HttpStatus.NOT_FOUND);
+		if (!deletedBooking) throw new NotFoundException(BOOKING_NOT_FOUND);
 		return deletedBooking;
 	}
 
@@ -54,7 +49,7 @@ export class BookingController {
 	@UsePipes(new ValidationPipe())
 	async update(@Param('id') id: string, @Body() dto: BookingUpdateDto) {
 		const room = await this.bookingService.update(id, dto);
-		if (!room) throw new HttpException(BOOKING_NOT_FOUND, HttpStatus.NOT_FOUND);
+		if (!room) throw new NotFoundException(BOOKING_NOT_FOUND);
 		return room;
 	}
 

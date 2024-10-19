@@ -102,7 +102,7 @@ describe('BookingController (e2e)', () => {
 
 	it('/booking/id (POST) - попытка сделать еще одно бронирование по той же комнате в ту же дату', async () => {
 		return await request(app.getHttpServer())
-			.patch('/booking/' + new Types.ObjectId().toHexString())
+			.post('/booking')
 			.send({ ...bookingUpdate, person: 'Smirnov' })
 			.expect(409);
 	});
