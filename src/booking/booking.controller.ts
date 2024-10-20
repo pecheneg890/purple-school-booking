@@ -23,6 +23,12 @@ import { userEmail } from '../decorators/user-email.decorator';
 export class BookingController {
 	constructor(private readonly bookingService: BookingService) {}
 
+	@Get('statByPeriod/:year/:month')
+	@Role(Roles.admin)
+	async getStatByPeriod(@Param('year') year: number, @Param('month') month: number) {
+		return this.bookingService.getStatByPeriod(year, month);
+	}
+
 	@Get(':id')
 	@Role(Roles.user)
 	async get(@Param('id') id: string) {

@@ -46,4 +46,55 @@ export class BookingService {
 	async getByRoom(id: string): Promise<BookingDocument[]> {
 		return this.bookingModel.find({ room: id }).exec();
 	}
+
+	async getStatByPeriod(year: number, month: number) {
+		const dateFrom = new Date(Date.UTC(year, month - 1, 1));
+		const dateTo = new Date(Date.UTC(year, month, 0));
+
+		return this.bookingModel
+			.aggregate([
+				{
+					//ограничение на месяц
+					$match: {
+						date: {
+							$gte: dateFrom,
+							$lte: dateTo,
+						},
+					},
+				},
+				{
+					//группировка по id комнаты, количество бронирований
+					$group: {
+						_id: {
+							_room_id: '$room',
+						},
+						count: { $count: {} },
+					},
+				},
+				{
+					//вытаскиваем объект комнаты
+					$lookup: {
+						from: 'rooms',
+						localField: '_id._room_id',
+						foreignField: '_id',
+						as: 'room',
+					},
+				},
+				{
+					//преобразуем массив наденных комнат в объект
+					$unwind: '$room',
+				},
+				{
+					//убираем из выдачи _id
+					$unset: '_id',
+				},
+				{
+					//вместо объекта комнаты возвращаем ее номер
+					$addFields: {
+						room: '$room.number',
+					},
+				},
+			])
+			.exec();
+	}
 }
