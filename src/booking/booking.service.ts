@@ -10,12 +10,12 @@ import { ALREADY_BOOKED } from './booking.constants';
 export class BookingService {
 	constructor(@InjectModel(Booking.name) private bookingModel: Model<BookingDocument>) {}
 
-	async create(dto: BookingCreateDto): Promise<BookingDocument> {
+	async create(dto: BookingCreateDto, email): Promise<BookingDocument> {
 		//проверка что комната уже забронирована на эту дату
 		const alwaysBooked = await this.bookingModel.findOne({ room: dto.room, date: dto.date });
 		if (alwaysBooked) throw new ConflictException(ALREADY_BOOKED);
 
-		return this.bookingModel.create(dto);
+		return this.bookingModel.create({ ...dto, person: email });
 	}
 
 	async get(id: string): Promise<BookingDocument | null> {
