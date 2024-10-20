@@ -7,6 +7,4 @@ export class BookingCreateDto {
 	date: Date;
 	@IsString()
 	room: string;
-	@IsString()
-	person: string;
 }
