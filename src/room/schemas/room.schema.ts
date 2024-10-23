@@ -20,6 +20,8 @@ export class Room {
 	type: RoomType;
 	@Prop()
 	seaView: boolean;
+	@Prop()
+	images: string[];
 }
 
 export const RoomSchema = SchemaFactory.createForClass(Room);

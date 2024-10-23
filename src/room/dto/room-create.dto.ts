@@ -1,4 +1,13 @@
-import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
+import {
+	IsArray,
+	IsBoolean,
+	IsEnum,
+	IsNotEmpty,
+	IsNumber,
+	IsOptional,
+	IsString,
+	Min,
+} from 'class-validator';
 import { RoomType } from '../schemas/room.schema';
 
 export class RoomCreateDto {
@@ -16,4 +25,9 @@ export class RoomCreateDto {
 
 	@IsBoolean()
 	seaView: boolean;
+
+	@IsArray()
+	@IsString({ each: true })
+	@IsOptional()
+	images: string[];
 }
