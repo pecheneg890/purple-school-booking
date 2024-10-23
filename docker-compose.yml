@@ -1,7 +1,7 @@
 version: "3"
 services:
   booking:
-    image: booking:latest
+    image: ghcr.io/pecheneg890/purple-school-booking/booking:develop
     container_name: booking
     restart: always
     ports:
