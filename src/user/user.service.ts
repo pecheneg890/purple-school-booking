@@ -3,7 +3,7 @@ import { User, UserDocument } from './schemas/user.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserCreateDto } from './dto/user-create.dto';
-import { HASH_ERR, USER_ALREADY_EXIST } from './user.constants';
+import { HASH_ERR, USER_ALREADY_EXIST, USER_CREATE_ERR } from './user.constants';
 import { hash, genSalt } from 'bcryptjs';
 
 @Injectable()
@@ -39,7 +39,7 @@ export class UserService {
 			return await this.userModel.create(newUser);
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (err) {
-			throw new BadRequestException(HASH_ERR);
+			throw new BadRequestException(USER_CREATE_ERR);
 		}
 	}
 
