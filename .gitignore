@@ -30,3 +30,4 @@ lerna-debug.log*
 .settings/
 *.sublime-workspace
 /.vscode
+/uploads
