@@ -1,0 +1,22 @@
+name: Publish Docker
+
+on:
+  push:
+    branches: [4-production, main]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@main
+      - name: Publish to registy
+        uses: elgohr/Publish-Docker-Github-Action@main
+        with:
+          registry: docker.pkg.github.com
+          name: docker.pkg.github.com/pecheneg890/purple-school-booking/booking
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          tags: "develop"
