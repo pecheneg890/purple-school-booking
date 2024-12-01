@@ -39,7 +39,7 @@ export class BookingController {
 
 	@Post()
 	@Role(Roles.user)
-	@UsePipes(new ValidationPipe())
+	@UsePipes(new ValidationPipe({ transform: true }))
 	async create(@Body() dto: BookingCreateDto, @userEmail() email: string) {
 		return await this.bookingService.create(dto, email);
 	}

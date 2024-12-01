@@ -1,21 +1,53 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+	BadRequestException,
+	ConflictException,
+	Injectable,
+	NotFoundException,
+} from '@nestjs/common';
 import { Booking, BookingDocument } from './schemas/booking.schema';
 import { Model, RootFilterQuery } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { BookingCreateDto } from './dto/booking-create.dto';
 import { BookingUpdateDto } from './dto/booking-update.dto';
-import { ALREADY_BOOKED } from './booking.constants';
+import { ALREADY_BOOKED, BOOKING_ERROR } from './booking.constants';
+import { TelegramService } from 'src/telegram/telegram.service';
+import { UserService } from 'src/user/user.service';
+import { USER_NOT_FOUND } from 'src/user/user.constants';
+import { RoomService } from 'src/room/room.service';
+import { ROOM_NOT_FOUND } from 'src/room/room.constants';
+import { format } from 'date-fns';
 
 @Injectable()
 export class BookingService {
-	constructor(@InjectModel(Booking.name) private bookingModel: Model<BookingDocument>) {}
+	constructor(
+		@InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
+		private readonly telegramService: TelegramService,
+		private readonly userService: UserService,
+		private readonly roomService: RoomService,
+	) {}
 
 	async create(dto: BookingCreateDto, email): Promise<BookingDocument> {
 		//проверка что комната уже забронирована на эту дату
-		const alwaysBooked = await this.bookingModel.findOne({ room: dto.room, date: dto.date });
-		if (alwaysBooked) throw new ConflictException(ALREADY_BOOKED);
+		try {
+			const alwaysBooked = await this.bookingModel.findOne({ room: dto.room, date: dto.date });
+			if (alwaysBooked) throw new ConflictException(ALREADY_BOOKED);
 
-		return this.bookingModel.create({ ...dto, person: email });
+			const booking = await this.bookingModel.create({ ...dto, person: email });
+
+			const user = await this.userService.findUser(email);
+			if (!user) throw new NotFoundException(USER_NOT_FOUND);
+
+			const room = await this.roomService.get(dto.room);
+			if (!room) throw new NotFoundException(ROOM_NOT_FOUND);
+
+			const message =
+				`Комната ${room.number} забронирована на ${format(dto.date, 'dd.MM.yyyy')}` +
+				`\nпользователем ${user.name}, телефон ${user.phone}`;
+			await this.telegramService.sendMessage(message);
+			return booking;
+		} catch (err) {
+			throw new BadRequestException(BOOKING_ERROR, err.message);
+		}
 	}
 
 	async get(id: string): Promise<BookingDocument | null> {
