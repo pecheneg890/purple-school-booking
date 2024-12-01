@@ -14,6 +14,7 @@ const room: RoomCreateDto = {
 	description: 'decription',
 	type: 0,
 	seaView: true,
+	images: [],
 };
 const roomUpdate: RoomUpdateDto = {
 	number: 43,
