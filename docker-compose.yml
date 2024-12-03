@@ -1,0 +1,10 @@
+version: "3"
+services:
+  booking:
+    image: ghcr.io/pecheneg890/purple-school-booking/booking:develop
+    container_name: booking
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - ./.env:/opt/app/.env
