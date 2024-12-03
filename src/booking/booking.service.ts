@@ -27,27 +27,23 @@ export class BookingService {
 	) {}
 
 	async create(dto: BookingCreateDto, email): Promise<BookingDocument> {
-		//проверка что комната уже забронирована на эту дату
-		try {
-			const alwaysBooked = await this.bookingModel.findOne({ room: dto.room, date: dto.date });
-			if (alwaysBooked) throw new ConflictException(ALREADY_BOOKED);
+		const alwaysBooked = await this.bookingModel.findOne({ room: dto.room, date: dto.date });
+		if (alwaysBooked) throw new ConflictException(ALREADY_BOOKED);
 
-			const booking = await this.bookingModel.create({ ...dto, person: email });
+		const user = await this.userService.findUser(email);
+		if (!user) throw new NotFoundException(USER_NOT_FOUND);
 
-			const user = await this.userService.findUser(email);
-			if (!user) throw new NotFoundException(USER_NOT_FOUND);
+		const room = await this.roomService.get(dto.room);
+		if (!room) throw new NotFoundException(ROOM_NOT_FOUND);
 
-			const room = await this.roomService.get(dto.room);
-			if (!room) throw new NotFoundException(ROOM_NOT_FOUND);
+		const booking = await this.bookingModel.create({ ...dto, person: email });
 
-			const message =
-				`Комната ${room.number} забронирована на ${format(dto.date, 'dd.MM.yyyy')}` +
-				`\nпользователем ${user.name}, телефон ${user.phone}`;
-			await this.telegramService.sendMessage(message);
-			return booking;
-		} catch (err) {
-			throw new BadRequestException(BOOKING_ERROR, err.message);
-		}
+		const message =
+			`Комната ${room.number} забронирована на ${format(dto.date, 'dd.MM.yyyy')}` +
+			`\nпользователем ${user.name}, телефон ${user.phone}`;
+		await this.telegramService.sendMessage(message);
+
+		return booking;
 	}
 
 	async get(id: string): Promise<BookingDocument | null> {
