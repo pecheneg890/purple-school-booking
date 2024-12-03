@@ -11,23 +11,23 @@ export class UserService {
 	constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
 	async createUser(dto: UserCreateDto): Promise<UserDocument> {
+		let salt = '';
+		let passHash = '';
+
+		const oldUser = await this.findUser(dto.email);
+		if (oldUser) {
+			throw new BadRequestException(USER_ALREADY_EXIST);
+		}
+
 		try {
-			let salt = '';
-			let passHash = '';
+			salt = await genSalt(10);
+			passHash = await hash(dto.password, salt);
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		} catch (err) {
+			throw new BadRequestException(HASH_ERR, err.message);
+		}
 
-			const oldUser = await this.findUser(dto.email);
-			if (oldUser) {
-				throw new BadRequestException(USER_ALREADY_EXIST);
-			}
-
-			try {
-				salt = await genSalt(10);
-				passHash = await hash(dto.password, salt);
-				// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			} catch (err) {
-				throw new BadRequestException(HASH_ERR);
-			}
-
+		try {
 			const newUser: User = {
 				email: dto.email,
 				name: dto.name,
